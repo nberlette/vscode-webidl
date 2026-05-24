@@ -19,9 +19,7 @@ export interface SourceLocation {
   offset: number;
 }
 
-/**
- *
- */
+/** */
 export interface DisplayLocation extends SourceLocation {
   displayLine: number;
   displayColumn: number;
@@ -69,7 +67,8 @@ export interface SourceRange<T extends SourceLocation = SourceLocation> {
   height: number;
 }
 
-export interface EnrichedToken<T extends SourceLocation = DisplayLocation> extends Token, SourceRange<T> {}
+export interface EnrichedToken<T extends SourceLocation = DisplayLocation>
+  extends Token, SourceRange<T> {}
 
 export interface EnrichedValidationResult<
   T extends SourceLocation = DisplayLocation,
