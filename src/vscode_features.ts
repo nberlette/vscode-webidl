@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as webidl from "./webidl_service.ts";
-import type { ValidationResult } from "./types.ts";
+import type { SourceRange, ValidationResult } from "./types.ts";
 
 let diagnosticCollection: vscode.DiagnosticCollection | undefined;
 
@@ -230,16 +230,6 @@ function rangeFromWebIDLError(
       Math.min(lineText.length, startCharacter + width),
     ),
   );
-}
-
-interface SourceRange {
-  start: SourceLocation;
-  end: SourceLocation;
-}
-
-interface SourceLocation {
-  line: number;
-  column: number;
 }
 
 function clampLine(

@@ -1,7 +1,12 @@
-import type { ValidationResult } from "./types.ts";
+import type {
+  DisplayLocation,
+  EnrichedToken,
+  EnrichedValidationResult,
+  ValidationResult,
+} from "./types.ts";
 import * as webidl2 from "webidl2";
 
-const INDENT = "  ";
+const INDENT = "    ";
 
 /**
  * Parse a WebIDL string into an abstract syntax tree (AST). The
@@ -115,35 +120,10 @@ function lineAndColumnFromIndex(
   return { line, column, offset, displayLine, displayColumn };
 }
 
-interface EnrichedToken extends webidl2.Token, SourceRange<DisplayLocation> {}
-
 type SourceTokenArray = webidl2.Token[] & { name?: string };
 
 interface SourceBackedNode {
   source?: SourceTokenArray;
-}
-
-interface Location {
-  line: number;
-  column: number;
-  offset: number;
-}
-
-interface DisplayLocation extends Location {
-  displayLine: number;
-  displayColumn: number;
-}
-
-interface SourceRange<T extends Location = Location> {
-  start: T;
-  end: T;
-  width: number;
-  height: number;
-}
-
-interface EnrichedValidationResult
-  extends ValidationResult, Partial<SourceRange<DisplayLocation>> {
-  tokens: EnrichedToken[];
 }
 
 function enrichTreeTokens(tree: webidl2.IDLRootType[], source: string): void {
@@ -292,7 +272,10 @@ function normalizeTokenTrivia(tree: webidl2.IDLRootType[]): void {
 }
 
 function collectTokens(tree: webidl2.IDLRootType[]): webidl2.Token[] {
-  const seen = { tokens: new WeakSet<webidl2.Token>(), objects: new WeakSet<object>() };
+  const seen = {
+    tokens: new WeakSet<webidl2.Token>(),
+    objects: new WeakSet<object>(),
+  };
   const tokens: webidl2.Token[] = [];
 
   (function visit(value: unknown): void {
