@@ -1,0 +1,6 @@
+{
+  "nodeModulesDir": "auto",
+  "imports": {
+    "vscode": "./scripts/vscode_stub.ts"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "es2022",
+    "target": "esnext",
+    "lib": ["esnext"],
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "allowImportingTsExtensions": true,
+    "allowArbitraryExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleResolution": "bundler",
+    "types": ["vscode", "node"],
+    "rewriteRelativeImportExtensions": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}

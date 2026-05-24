@@ -1,0 +1,219 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref name/branch/tag/SHA."
+        required: false
+        default: "$GITHUB_REF"
+      deno_version:
+        description: "Deno version or tag ('canary', '2.x', '1.46.0', ...)"
+        required: false
+        default: "2.x"
+      coverage:
+        type: boolean
+        description: "Upload coverage to Coveralls?"
+        required: false
+        default: true
+      check:
+        type: boolean
+        description: "Run typecheck, build, and test?"
+        required: false
+        default: true
+      publish:
+        type: boolean
+        description: "Publish to Marketplace using VSCE_PAT?"
+        required: false
+        default: false
+      release:
+        type: boolean
+        description: "Create a GitHub Release?"
+        required: false
+        default: false
+      release_title:
+        description: "GitHub release title. Defaults to the ref name."
+        required: false
+        default: "$GITHUB_REF_NAME"
+      artifacts_dir:
+        description: "Artifacts directory"
+        required: false
+        default: ".artifacts"
+      coverage_dir:
+        description: "Coverage output directory"
+        required: false
+        default: "coverage"
+      vsix_template:
+        description: "VSIX filename template"
+        required: false
+        default: "vscode-webidl-{{VERSION}}.vsix"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      vsix_path: ${{ steps.meta.outputs.vsix_path }}
+      artifact_name: ${{ steps.meta.outputs.artifact_name }}
+      artifacts_dir: ${{ steps.meta.outputs.artifacts_dir }}
+      should_publish: ${{ steps.meta.outputs.should_publish }}
+      should_release: ${{ steps.meta.outputs.should_release }}
+      release_title: ${{ steps.meta.outputs.release_title }}
+    env:
+      ARTIFACTS_DIR: ${{ inputs.artifacts_dir || '.artifacts' }}
+      DENO_COVERAGE_DIR: ${{ inputs.coverage_dir || 'coverage' }}
+      VSIX_TEMPLATE: ${{ inputs.vsix_template || 'vscode-webidl-{{VERSION}}.vsix' }}
+      SHOULD_CHECK: ${{ inputs.check != false }}
+      SHOULD_COVER: ${{ inputs.coverage != false }}
+      INPUT_PUBLISH: ${{ inputs.publish || false }}
+      INPUT_RELEASE: ${{ inputs.release || false }}
+      INPUT_RELEASE_TITLE: ${{ inputs.release_title || '' }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ inputs.deno_version || '2.x' }}
+
+      - id: meta
+        run: |
+          function interpolate() {
+            local t="$1" var val
+            # interpolate environment variables with the real things
+            for var in $(compgen -e); do
+              val="${!var}"
+              t="${t//\{\{$var\}\}/$val}"
+              t="${t//\{\{ env.$var \}\}/$val}"
+              t="${t//\$$var/$val}"
+            done
+            echo "$t"
+          }
+          VERSION="$(deno eval --ext cjs -p "require('package.json').version")"
+          VSIX_FILE="${VSIX_TEMPLATE:-vscode-webidl-{{VERSION}}.vsix}"
+          VSIX_FILE="$(interpolate "$VSIX_FILE")"
+          export VSIX_FILE
+          VSIX_PATH="$ARTIFACTS_DIR/$VSIX_FILE"
+          export VSIX_PATH
+          RELEASE_TITLE="${INPUT_RELEASE_TITLE:-$GITHUB_REF_NAME}"
+          RELEASE_TITLE="$(interpolate "$RELEASE_TITLE")"
+          export RELEASE_TITLE
+          export SHOULD_PUBLISH="$INPUT_PUBLISH"
+          export SHOULD_RELEASE="$INPUT_RELEASE"
+
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            export SHOULD_PUBLISH="true"
+            export SHOULD_RELEASE="true"
+          fi
+
+          cat <<-EOF >> "$GITHUB_OUTPUT"
+            version="$VERSION"
+            vsix_path="$VSIX_PATH"
+            artifact_name="vscode-webidl-$VERSION.vsix"
+            artifacts_dir="$ARTIFACTS_DIR"
+            should_publish="$SHOULD_PUBLISH"
+            should_release="$SHOULD_RELEASE"
+            release_title="$RELEASE_TITLE"
+          EOF
+
+      - name: "Verify tag sanity"
+        if: github.ref_type == 'tag'
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          if [ "${{ steps.meta.outputs.version }}" != "$TAG" ]; then
+            echo $'\e[1;31merror\e[0m: $GITHUB_REF_NAME (\e[1;4;4:5;93;58;2;235;245;10m'"${GITHUB_REF_NAME:-?}"$'\e[0m) !== package.json version (\e[1;4;4:3;91;58;2;240;20;20m${{ steps.meta.outputs.version }}\e[0m)' >&2
+            exit 1
+          fi
+
+      - name: "Typecheck"
+        if: env.SHOULD_CHECK == 'true'
+        run: deno task typecheck
+
+      - name: "Compile"
+        if: env.SHOULD_CHECK == 'true'
+        run: deno task build
+
+      - name: "Test"
+        if: env.SHOULD_CHECK == 'true' && env.SHOULD_COVER != 'true'
+        run: deno task test
+
+      - name: "Test + Coverage"
+        if: env.SHOULD_CHECK == 'true' && env.SHOULD_COVER == 'true'
+        run: deno task test:coverage
+
+      - name: "Generate LCOV"
+        if: env.SHOULD_CHECK == 'true' && env.SHOULD_COVER == 'true'
+        run: deno task coverage:lcov
+
+      - name: "Upload to Coveralls"
+        if: env.SHOULD_CHECK == 'true' && env.SHOULD_COVER == 'true'
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.DENO_COVERAGE_DIR }}/lcov.info
+          format: lcov
+
+      - name: "Package VSIX"
+        run: deno task package
+
+      - name: "Upload VSIX"
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.meta.outputs.artifact_name }}
+          path: ${{ steps.meta.outputs.vsix_path }}
+          if-no-files-found: error
+
+  publish:
+    if: needs.verify.outputs.should_publish == 'true' || needs.verify.outputs.should_release == 'true'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      discussions: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ inputs.deno_version || '2.x' }}
+
+      - name: "Download VSIX artifact"
+        uses: actions/download-artifact@v7
+        with:
+          name: ${{ needs.verify.outputs.artifact_name }}
+          path: ${{ needs.verify.outputs.artifacts_dir }}
+
+      - name: "Publish to VS Marketplace"
+        if: needs.verify.outputs.should_publish == 'true'
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          VSIX_PATH: ${{ needs.verify.outputs.vsix_path }}
+        run: |
+          echo "::add-mask::$VSCE_PAT"
+          deno run -A npm:@vscode/vsce publish --packagePath "$VSIX_PATH" -p "$VSCE_PAT"
+
+      - name: "Create GitHub Release"
+        if: needs.verify.outputs.should_release == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VSIX_PATH: ${{ needs.verify.outputs.vsix_path }}
+          RELEASE_TITLE: ${{ needs.verify.outputs.release_title }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" -t "$RELEASE_TITLE" --discussion-category "Releases" --generate-notes --fail-on-no-commits "$VSIX_PATH"

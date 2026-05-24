@@ -1,0 +1,83 @@
+{
+  "name": "vscode-webidl",
+  "displayName": "WebIDL Language Support",
+  "description": "Rich WebIDL language support for VS Code (desktop or web). Features accurate syntax highlighting with linting and formatting powered by webidl2.",
+  "version": "0.1.0",
+  "publisher": "nberlette",
+  "author": {
+    "name": "Nicholas Berlette",
+    "email": "nick@berlette.com",
+    "url": "https://github.com/nberlette"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "type": "module",
+  "categories": [
+    "Programming Languages"
+  ],
+  "main": "./dist/extension.cjs",
+  "browser": "./dist/web/extension.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nberlette/vscode-webidl.git"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "webidl",
+        "aliases": ["WebIDL", "webidl"],
+        "extensions": [".webidl", ".idl"],
+        "firstLine": "-[*]-( Mode:)? C -[*]-",
+        "configuration": "./language.config.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "webidl",
+        "scopeName": "source.webidl",
+        "path": "./syntaxes/webidl.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "webidl.validate",
+        "title": "WebIDL: Validate Document"
+      },
+      {
+        "command": "webidl.format",
+        "title": "WebIDL: Format Document"
+      }
+    ]
+  },
+  "scripts": {
+    "clean": "deno run -A npm:rimraf dist dist-test .artifacts",
+    "typecheck": "deno run -A npm:typescript/tsc --noEmit -p tsconfig.json",
+    "compile": "deno run -A npm:typescript/tsc -p tsconfig.json",
+    "compile:desktop": "deno run -A npm:webpack-cli --config webpack.node.config.js",
+    "compile:web": "deno run -A npm:webpack-cli --config webpack.config.js",
+    "prebuild": "deno task clean",
+    "build": "deno task compile && deno task compile:desktop && deno task compile:web",
+    "prepackage": "deno task build",
+    "coverage:lcov": "deno run --allow-env=DENO_COVERAGE_DIR --allow-read --allow-write scripts/coverage_lcov.ts",
+    "package": "deno run -A scripts/package.ts",
+    "test": "deno test --allow-all --parallel --no-check=remote",
+    "test:coverage": "deno test --allow-all --coverage --coverage-raw-data-only --clean --parallel --no-check=remote",
+    "watch": "deno run -A npm:typescript/tsc -w -p tsconfig.json",
+    "watch:web": "deno run -A npm:webpack-cli --config webpack.config.js --watch",
+    "ci": "deno task typecheck && deno task build && deno task test"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.0",
+    "@types/vscode": "^1.90.0",
+    "@types/webidl2": "24.4.4",
+    "rimraf": "^6.1.0",
+    "ts-loader": "^9.4.3",
+    "typescript": "^6.0.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^7.0.2"
+  },
+  "dependencies": {
+    "webidl2": "^24.5.0"
+  }
+}

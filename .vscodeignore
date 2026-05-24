@@ -1,0 +1,16 @@
+.github/**
+.artifacts/**
+coverage/**
+dist-test/**
+scripts/**
+src/**
+tests/**
+.gitignore
+*.log
+.DS_Store
+deno.json
+deno.lock
+tsconfig*.json
+webpack.config.js
+webpack.node.config.js
+**/*.map
