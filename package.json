@@ -1,7 +1,7 @@
 {
-  "name": "vscode-webidl",
+  "name": "webidl",
   "displayName": "WebIDL Language Support",
-  "description": "Rich WebIDL language support for VS Code (desktop or web). Features accurate syntax highlighting with linting and formatting powered by webidl2.",
+  "description": "Spec-compliant syntax highlighting for the WebIDL language, with validation and formatting capabilities powered by webidl2.",
   "version": "0.1.0",
   "publisher": "nberlette",
   "author": {
@@ -17,7 +17,9 @@
     "Programming Languages"
   ],
   "main": "./dist/extension.cjs",
+  "module": "./dist/extension.js",
   "browser": "./dist/web/extension.js",
+  "types": "./dist/extension.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nberlette/vscode-webidl.git"

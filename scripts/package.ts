@@ -1,4 +1,5 @@
 interface PackageManifest {
+  name: string;
   version: string;
 }
 
@@ -8,7 +9,7 @@ const manifest = JSON.parse(
 
 const artifactsDir = Deno.env.get("ARTIFACTS_DIR") ?? ".artifacts";
 const vsixTemplate = Deno.env.get("VSIX_TEMPLATE") ??
-  "vscode-webidl-{{VERSION}}.vsix";
+  `${manifest.name}-{{VERSION}}.vsix`;
 const vsixFile = vsixTemplate.replaceAll("{{VERSION}}", manifest.version);
 const outPath = `${artifactsDir}/${vsixFile}`;
 

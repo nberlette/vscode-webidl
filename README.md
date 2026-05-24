@@ -1,8 +1,8 @@
-# vscode-webidl
+# Web IDL Language Support
 
 This extension brings a complete editing experience for
-[Web IDL](https://www.w3.org/TR/WebIDL/) to Visual Studio Code on both the
-desktop and the Web. It provides syntax highlighting, on‑the‑fly validation,
+[Web IDL](https://www.w3.org/TR/WebIDL/) to VSCode and compatible editors, on
+both desktop and web. It provides syntax highlighting, on‑the‑fly validation,
 semantic linting, formatting and simple commands to help you work with WebIDL
 definitions more productively.
 
