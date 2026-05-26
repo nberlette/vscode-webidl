@@ -2,7 +2,7 @@ import { strict as assert } from "node:assert";
 import {
   buildDiagnosticsForDocument,
   createFormattingEdits,
-} from "../src/vscode_features.ts";
+} from "../src/extension.ts";
 import type * as vscode from "vscode";
 
 Deno.test("extension entry points export activate and deactivate", async () => {
@@ -22,7 +22,7 @@ Deno.test("formatting edits support untitled WebIDL documents", () => {
     edits[0].newText,
     `[Exposed=Window]
 interface Foo {
-  attribute boolean bar;
+    attribute boolean bar;
 };`,
   );
 });
@@ -50,8 +50,8 @@ Deno.test("syntax diagnostics use enriched parser token ranges", () => {
   const document = createDocument(
     `[Exposed=Window]
 interface Foo {
-  attribute DOMString ok;
-  attribute DOMString bad
+    attribute DOMString ok;
+    attribute DOMString bad
 };`,
     "bad.webidl",
   );

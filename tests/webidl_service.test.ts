@@ -18,7 +18,7 @@ Deno.test("webidl_service applies autofixes and returns parseable IDL", () => {
     formatted,
     `[Exposed=Window]
 interface Foo {
-  attribute boolean bar;
+    attribute boolean bar;
 };`,
   );
   assert.doesNotThrow(() => {
@@ -35,21 +35,21 @@ Deno.test("webidl_service formatting is deterministic", () => {
     formatted,
     `[Exposed=(Window, Worker)]
 interface Foo : Bar {
-  readonly attribute DOMString name;
-  undefined doThing(optional long x, DOMString... y);
+    readonly attribute DOMString name;
+    undefined doThing(optional long x, DOMString... y);
 };`,
   );
 });
 
 Deno.test("webidl_service formats enums and dictionary defaults as parseable IDL", () => {
-  const idl =
+  const ugly =
     `enum E{"a","b"}; dictionary D{DOMString s="x"; boolean b=false; object? o=null; sequence<long> xs=[];};`;
-  const formatted = format(idl, "test.webidl");
+  const formatted = format(ugly, "test.webidl");
   assert.doesNotThrow(() => {
     parse(formatted, "test.webidl");
   });
-  assert.ok(formatted.includes(`  "a",`));
-  assert.ok(formatted.includes(`  DOMString s = "x";`));
+  assert.ok(formatted.includes(`\n    "a",`));
+  assert.ok(formatted.includes(`\n    DOMString s = "x";`));
 });
 
 Deno.test("webidl_service preserves final newline when formatting", () => {
@@ -72,20 +72,27 @@ attribute boolean bar;
     `// Interface docs
 [Exposed=Window]
 interface Foo {
-  // Member docs
-  attribute boolean bar;
-  // End docs
+    // Member docs
+    attribute boolean bar;
+    // End docs
 };`,
   );
 });
 
 Deno.test("webidl_service validates semantic errors in attributes", () => {
-  const idl = `interface Test {
-      attribute sequence<long> data;
-    };`;
+  const idl = `[Exposed=*] interface Test { attribute sequence<long> data; };`;
   const results = validateIDL(idl, "test.webidl");
-  assert.ok(results.length > 0);
-  assert.ok(results.some((r) => /sequence/.test(r.message)));
+  assert.equal(results.length, 1);
+  const [res] = results;
+  assert.match(res.message, /\bAttributes cannot accept sequence types\./);
+  // assert.ok(results.some((r) => r.ruleName === "require-exposed"));
+});
+
+Deno.test("webidl_service validates require-exposed rule", () => {
+  const idl = `interface Test { attribute long x; };`;
+  const results = validateIDL(idl, "test.webidl");
+  assert.equal(results.length, 1);
+  assert.equal(results[0].ruleName, "require-exposed");
 });
 
 Deno.test("webidl_service enriches validation tokens with source ranges", () => {
