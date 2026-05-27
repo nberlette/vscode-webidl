@@ -8,24 +8,51 @@
   "brackets": [
     ["{", "}"],
     ["[", "]"],
-    ["(", ")"]
+    ["(", ")"],
+    ["<", ">"]
   ],
   "autoClosingPairs": [
-    { "open": "{", "close": "}" },
+    { "open": "{", "close": "};", "notIn": ["string", "comment"] },
     { "open": "[", "close": "]" },
     { "open": "(", "close": ")" },
-    { "open": "\"", "close": "\"", "notIn": ["string"] }
+    { "open": "<", "close": ">" },
+    { "open": "\"", "close": "\"", "notIn": ["string"] },
+    { "open": "'", "close": "'", "notIn": ["string", "comment"] },
+    { "open": "`", "close": "`", "notIn": ["string", "comment"] },
+    { "open": "/**", "close": "\n *\n */", "notIn": ["string", "comment"] }
   ],
+  "autoCloseBefore": ";:.,=}])>` \n\t",
   "surroundingPairs": [
-    { "open": "{", "close": "}" },
-    { "open": "[", "close": "]" },
-    { "open": "(", "close": ")" },
-    { "open": "\"", "close": "\"" }
+    ["{", "}"],
+    ["[", "]"],
+    ["(", ")"],
+    ["'", "'"],
+    ["\"", "\""],
+    ["`", "`"]
   ],
   "folding": {
     "markers": {
-      "start": "/\\*\\*(?!\\*)|\\{\\s*(?:$|//|/\\*)",
-      "end": "(?<!\\*)\\*\\*/|^\\s*\\}"
+      "start": "^\\s*//\\s*#?region\\b",
+      "end": "^\\s*//\\s*#?endregion\\b"
     }
-  }
+  },
+  "wordPattern": "(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\@\\#\\%\\^\\&\\*\\(\\)\\-\\=\\+\\[\\{\\]\\}\\\\\\|\\;\\:\\'\\\"\\,\\.\\<\\>\\/\\?\\s]+)",
+  "indentationRules": {
+    "increaseIndentPattern": "^((?!\\/\\/).)*(\\{[^}\"'`]*|\\([^)\"'`]*|\\[[^\\]\"'`]*)$",
+    "decreaseIndentPattern": "^((?!.*?\\/\\*).*\\*/)?\\s*[\\)\\}\\]].*$"
+  },
+  "onEnterRules": [
+    {
+      "beforeText": "^(const(ructor)?|static|readonly|required|optional|inherit|unrestricted|attribute|[gs]etter|deleter|(async_)?iterable|(map|set)like)\\b.*?;\\s*$",
+      "action": {
+        "indent": "none"
+      }
+    },
+    {
+      "beforeText": "^\\s*(?!.*?\\/\\*).*\\*/.*$",
+      "action": {
+        "indent": "none"
+      }
+    }
+  ]
 }

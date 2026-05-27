@@ -1,9 +1,4 @@
-import type {
-  DisplayLocation,
-  EnrichedToken,
-  EnrichedValidationResult,
-  ValidationResult,
-} from "./types.ts";
+import type { DisplayLocation, Token, ValidationResult } from "./types.ts";
 import * as webidl2 from "webidl2";
 
 const INDENT = "    ";
@@ -183,12 +178,8 @@ function enrichToken(
 ): void {
   const start = lineAndColumnFromIndex(startOffset, source);
   const end = lineAndColumnFromIndex(endOffset, source);
-  Object.assign(token, {
-    start,
-    end,
-    width: endOffset - startOffset,
-    height: end.line - start.line,
-  });
+  const width = endOffset - startOffset, height = end.line - start.line;
+  Object.assign(token, { start, end, width, height });
 }
 
 function enrichErrorLocationMetadata(error: unknown, source: string): void {
@@ -231,7 +222,7 @@ function lineStartOffset(oneBasedLine: number, source: string): number {
 
 function enrichLocationMetadata(result: ValidationResult): void {
   const { tokens } = result;
-  const enriched = result as EnrichedValidationResult;
+  const enriched = result as ValidationResult;
   const token = tokens.find((token) => token.value || hasRange(token));
   if (!token || !hasRange(token)) return;
 
@@ -241,8 +232,8 @@ function enrichLocationMetadata(result: ValidationResult): void {
   enriched.height = token.height;
 }
 
-function hasRange(token: webidl2.Token): token is EnrichedToken {
-  const candidate = token as Partial<EnrichedToken>;
+function hasRange(token: webidl2.Token): token is Token {
+  const candidate = token as Partial<Token>;
   return !!candidate.start && !!candidate.end &&
     typeof candidate.width === "number" &&
     typeof candidate.height === "number";
@@ -356,21 +347,16 @@ function whitespaceForToken(
   _parens: number = 0,
 ): string {
   if (!token?.value || !previous?.value) return "";
-  if (token.value === "}") {
-    return `\n${INDENT.repeat(depth)}`;
-  }
+  if (token.value === "}") return `\n${INDENT.repeat(depth)}`;
   if ((token.value === "[" || token.value === "{") && previous.value === "=") {
     return " ";
   }
-  if (previous.value === ";" && depth === 0) {
-    return "\n\n";
-  }
+  if (previous.value === ";" && depth === 0) return "\n\n";
   if (
     (previous.value === "]" && startsAttributedConstruct(token.value)) ||
     previous.value === ";" || previous.value === "{"
-  ) {
-    return `\n${INDENT.repeat(depth)}`;
-  }
+  ) return `\n${INDENT.repeat(depth)}`;
+
   if (
     token.value === "," ||
     token.value === ";" ||
@@ -380,14 +366,13 @@ function whitespaceForToken(
     token.value === "?" ||
     token.value === "<" ||
     token.value === "[" ||
-    token.value === "..." ||
     token.value === "(" ||
+    token.value === "..." ||
     previous.value === "(" ||
     previous.value === "[" ||
     previous.value === "<"
-  ) {
-    return "";
-  }
+  ) return "";
+
   if (previous.value === "," && depth > 0 && token.type === "string") {
     return `\n${INDENT.repeat(depth)}`;
   }
@@ -406,30 +391,32 @@ function whitespaceForToken(
   return " ";
 }
 
+const ATTRIBUTE_NAME_KEYWORDS = [
+  "attribute",
+  "callback",
+  "const",
+  "constructor",
+  "deleter",
+  "dictionary",
+  "enum",
+  "getter",
+  "includes",
+  "inherit",
+  "interface",
+  "iterable",
+  "maplike",
+  "namespace",
+  "partial",
+  "readonly",
+  "setter",
+  "setlike",
+  "static",
+  "stringifier",
+  "typedef",
+] as const;
+
 function startsAttributedConstruct(value: string): boolean {
-  return [
-    "attribute",
-    "callback",
-    "const",
-    "constructor",
-    "deleter",
-    "dictionary",
-    "enum",
-    "getter",
-    "includes",
-    "inherit",
-    "interface",
-    "iterable",
-    "maplike",
-    "namespace",
-    "partial",
-    "readonly",
-    "setter",
-    "setlike",
-    "static",
-    "stringifier",
-    "typedef",
-  ].includes(value);
+  return ATTRIBUTE_NAME_KEYWORDS.includes(value as never);
 }
 
 function preserveFinalNewline(formatted: string, original: string): string {
@@ -450,16 +437,13 @@ function formatCommentsFromTrivia(
   trivia: string | undefined,
   depth: number = 0,
 ): string {
-  if (!trivia || !/\/[/*]/.test(trivia)) {
-    return "";
-  }
+  if (!trivia || !/\/[/*]/.test(trivia)) return "";
   const comments = trivia.match(/\/\/[^\r\n]*|\/\*[\s\S]*?\*\//g) ?? [];
-  return comments.length
-    ? `${
-      comments.map((comment) => {
-        const normalized = comment.trimEnd();
-        return `${INDENT.repeat(depth)}${normalized}`;
-      }).join("\n")
-    }\n`
-    : "";
+  if (!comments.length) return "";
+  return `${
+    comments.map((comment) => {
+      const normalized = comment.trimEnd();
+      return `${INDENT.repeat(depth)}${normalized}`;
+    }).join("\n")
+  }\n`;
 }

@@ -1,8 +1,6 @@
-import type { Token, WebIDLErrorData as ValidationResult } from "webidl2";
+import type { Token as WebIDLToken, WebIDLErrorData } from "webidl2";
 
 export type * from "webidl2";
-
-export type { ValidationResult };
 
 /**
  * Represents a single location in a WebIDL source file by its 0-based line and
@@ -67,11 +65,11 @@ export interface SourceRange<T extends SourceLocation = SourceLocation> {
   height: number;
 }
 
-export interface EnrichedToken<T extends SourceLocation = DisplayLocation>
-  extends Token, SourceRange<T> {}
+export interface Token<T extends SourceLocation = DisplayLocation>
+  extends WebIDLToken, SourceRange<T> {}
 
-export interface EnrichedValidationResult<
+export interface ValidationResult<
   T extends SourceLocation = DisplayLocation,
-> extends ValidationResult, Partial<SourceRange<T>> {
-  tokens: EnrichedToken<T>[];
+> extends WebIDLErrorData, Partial<SourceRange<T>> {
+  tokens: Token<T>[];
 }
