@@ -154,10 +154,6 @@ jobs:
         if: env.SHOULD_CHECK == 'true' && env.SHOULD_COVER == 'true'
         run: deno task test:coverage
 
-      - name: "Generate LCOV"
-        if: env.SHOULD_CHECK == 'true' && env.SHOULD_COVER == 'true'
-        run: deno task coverage:lcov
-
       - name: "Upload to Coveralls"
         if: env.SHOULD_CHECK == 'true' && env.SHOULD_COVER == 'true'
         uses: coverallsapp/github-action@v2

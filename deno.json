@@ -1,6 +1,37 @@
 {
+  "lock": "deno.lock",
   "nodeModulesDir": "auto",
+  "vendor": false,
+  "unstable": [
+    "bundle",
+    "node-globals",
+    "sloppy-imports",
+    "tsgo"
+  ],
   "imports": {
-    "vscode": "./scripts/vscode_stub.ts"
+    "vscode": "./scripts/vscode_stub.ts",
+    "tsgo": "npm:@typescript/native-preview@7.0.0-dev.20260524.1/tsgo"
+  },
+  "allowScripts": ["npm:@vscode/vsce-sign@2.0.9", "npm:keytar@7.9.0"],
+  "lint": {
+    "rules": {
+      "tags": ["recommended"],
+      "include": [
+        "no-console",
+        "no-debugger",
+        "no-top-level-await",
+        "no-sync-fn-in-async-fn"
+      ],
+      "exclude": [
+        "no-sloppy-imports",
+        "no-slow-types",
+        "triple-slash-reference"
+      ]
+    },
+    "exclude": ["coverage", "dist"]
+  },
+  "fmt": {
+    "include": ["**/*.ts", "**/*.json", "**/*.md"],
+    "exclude": ["coverage", "dist"]
   }
 }
