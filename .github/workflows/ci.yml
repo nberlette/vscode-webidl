@@ -54,7 +54,7 @@ on:
       vsix_template:
         description: "VSIX filename template"
         required: false
-        default: "webidl-{{VERSION}}.vsix"
+        default: "webidl2-{{VERSION}}.vsix"
 
 permissions:
   contents: read
@@ -73,7 +73,7 @@ jobs:
     env:
       ARTIFACTS_DIR: ${{ inputs.artifacts_dir || '.artifacts' }}
       DENO_COVERAGE_DIR: ${{ inputs.coverage_dir || 'coverage' }}
-      VSIX_TEMPLATE: ${{ inputs.vsix_template || 'webidl-{{VERSION}}.vsix' }}
+      VSIX_TEMPLATE: ${{ inputs.vsix_template || 'webidl2-{{VERSION}}.vsix' }}
       SHOULD_CHECK: ${{ inputs.check != false }}
       SHOULD_COVER: ${{ inputs.coverage != false }}
       INPUT_PUBLISH: ${{ inputs.publish || false }}
@@ -102,8 +102,8 @@ jobs:
             done
             echo "$t"
           }
-          VERSION="$(deno eval --ext cjs -p "require('package.json').version")"
-          VSIX_FILE="${VSIX_TEMPLATE:-webidl-{{VERSION}}.vsix}"
+          VERSION="$(deno eval --ext cjs -p "require('./package.json').version")"
+          VSIX_FILE="${VSIX_TEMPLATE:-webidl2-{{VERSION}}.vsix}"
           VSIX_FILE="$(interpolate "$VSIX_FILE")"
           export VSIX_FILE
           VSIX_PATH="$ARTIFACTS_DIR/$VSIX_FILE"
@@ -122,7 +122,7 @@ jobs:
           cat <<-EOF >> "$GITHUB_OUTPUT"
             version="$VERSION"
             vsix_path="$VSIX_PATH"
-            artifact_name="webidl-$VERSION.vsix"
+            artifact_name="$VSIX_FILE"
             artifacts_dir="$ARTIFACTS_DIR"
             should_publish="$SHOULD_PUBLISH"
             should_release="$SHOULD_RELEASE"
