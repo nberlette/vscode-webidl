@@ -1,6 +1,6 @@
-# WebIDL Language Support for VSCode
+# WebIDL for VSCode
 
-[![nberlette.webidl on VSCode Marketplace](https://vsmarketplacebadges.dev/version/nberlette.webidl.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=nberlette.webidl)
+[![nberlette.webidl2 on VSCode Marketplace](https://vsmarketplacebadges.dev/version/nberlette.webidl2.png?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=nberlette.webidl2)
 [![GitHub issues](https://img.shields.io/github/issues/nberlette/vscode-webidl?style=flat-square)](https://github.com/nberlette/vscode-webidl/issues)
 [![GitHub stars](https://img.shields.io/github/stars/nberlette/vscode-webidl?style=flat-square)](https://github.com/nberlette/vscode-webidl/stargazers)
 [![GitHub license](https://img.shields.io/github/license/nberlette/vscode-webidl?style=flat-square)](https://github.com/nberlette/vscode-webidl/blob/main/LICENSE)

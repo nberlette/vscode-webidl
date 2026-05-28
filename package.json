@@ -1,5 +1,5 @@
 {
-  "name": "webidl",
+  "name": "webidl2",
   "version": "0.1.0",
   "publisher": "nberlette",
   "license": "MIT",
@@ -8,7 +8,7 @@
   "module": "./dist/extension.js",
   "browser": "./dist/web/extension.js",
   "types": "./dist/extension.d.ts",
-  "displayName": "WebIDL Language Support",
+  "displayName": "WebIDL for VSCode",
   "description": "WebIDL language support for VSCode, including syntax highlighting, validation, and formatting for *.webidl and *.idl files.",
   "author": {
     "name": "Nicholas Berlette",
@@ -37,9 +37,9 @@
   },
   "badges": [
     {
-      "url": "https://vsmarketplacebadges.dev/version/nberlette.webidl.png?style=for-the-badge",
+      "url": "https://vsmarketplacebadges.dev/version/nberlette.webidl2.png?style=for-the-badge",
       "href": "https://github.com/nberlette/vscode-webidl/releases",
-      "description": "VSCode Marketplace Version: nberlette.webidl"
+      "description": "VSCode Marketplace Version: nberlette.webidl2"
     },
     {
       "url": "https://img.shields.io/github/actions/workflow/status/nberlette/vscode-webidl/ci.yml?style=for-the-badge&logo=github-actions",
