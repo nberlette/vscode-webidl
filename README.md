@@ -1,4 +1,9 @@
-# Web IDL Language Support
+# WebIDL Language Support for VSCode
+
+[![nberlette.webidl on VSCode Marketplace](https://vsmarketplacebadges.dev/version/nberlette.webidl.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=nberlette.webidl)
+[![GitHub issues](https://img.shields.io/github/issues/nberlette/vscode-webidl?style=flat-square)](https://github.com/nberlette/vscode-webidl/issues)
+[![GitHub stars](https://img.shields.io/github/stars/nberlette/vscode-webidl?style=flat-square)](https://github.com/nberlette/vscode-webidl/stargazers)
+[![GitHub license](https://img.shields.io/github/license/nberlette/vscode-webidl?style=flat-square)](https://github.com/nberlette/vscode-webidl/blob/main/LICENSE)
 
 This extension brings a complete editing experience for
 [Web IDL](https://www.w3.org/TR/WebIDL/) to VSCode and compatible editors, on
@@ -9,7 +14,7 @@ definitions more productively.
 ## Features
 
 The extension uses the [webidl2](https://github.com/w3c/webidl2.js/) library
-under the hood to parse, validate and format your IDL. You get:
+under the hood to parse, validate, and format your IDL.
 
 - **Syntax highlighting:** A comprehensive TextMate grammar describes WebIDL
   syntax so that keywords, literals, identifiers and punctuation are colored
@@ -77,55 +82,21 @@ configuration options at this time, but you can control editor behavior through
 standard settings such as `editor.formatOnSave` to automatically format WebIDL
 files on save.
 
-## Developing
+---
 
-This repository is structured as a standard VS Code extension with support for
-both the desktop and web runtimes. The entry points are in `src/extension.ts`
-(desktop) and `src/web/extension.ts` (web). Shared logic lives in
-`src/webidl_service.ts`.
+## Contributing
 
-The repo uses Deno 2 for local development. The task definitions live in
-`package.json`, and Deno resolves them via `deno task <script-name>`.
-Dependencies are installed and cached by Deno as needed.
+Contributions to this project are warmly welcomed! If you have an idea for a new
+feature, a bug fix, or an improvement to the documentation, please open an
+issue, and if appropriate, feel free to open a pull request on GitHub.
 
-1. **Install/cache dependencies:**
-   ```sh
-   deno install
-   ```
-2. **Build the desktop and web extension artifacts:**
-   ```sh
-   deno task build
-   ```
-3. **Run the test suite:**
-   ```sh
-   deno task test
-   ```
-4. **Run the full local verification flow:**
-   ```sh
-   deno task ci
-   ```
-5. **Create a `.vsix` package locally:**
-   ```sh
-   deno task package
-   ```
+Opening an issue first is always a good idea to discuss your proposed changes
+and get feedback from the maintainers/community before investing time in a PR.
 
-### Release automation
-
-The GitHub Actions workflow in `.github/workflows/ci.yml` now handles both
-verification and tagged releases:
-
-- It runs type-checking, builds the desktop/web artifacts, executes the tests,
-  and uploads the packaged `.vsix` as a workflow artifact on pushes, pull
-  requests, and manual runs.
-- On tag pushes, it additionally verifies that the tag matches the
-  `package.json` version, publishes that same `.vsix` to the Visual Studio
-  Marketplace, and creates a GitHub Release with the artifact attached.
-
-To make the release workflow work, add a repository secret named `VSCE_PAT`
-containing a Visual Studio Marketplace personal access token for your publisher.
-
-The test suite uses native `deno test` to exercise every exported API function.
-See the mirrored files under `tests/` for examples and edge-case coverage.
+> [!TIP]
+>
+> Please refer to the [contributing guidelines](.github/CONTRIBUTING.md) for
+> more details on how to contribute effectively to this project.
 
 ---
 
